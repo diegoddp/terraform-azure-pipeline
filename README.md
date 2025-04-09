@@ -46,6 +46,34 @@ The pipeline uses several environment variables that should be securely stored i
 - container_uat
 - azureSubsc
 
+## main.tf 
+The main.tf file is the primary configuration file for Terraform, defining the infrastructure resources to be deployed on Azure. It includes the following key components:
+
+1. Terraform Provider Configuration:
+
+  - Specifies the required provider (azurerm) and its version.
+  - Configures the Azure provider with subscription, tenant, client IDs, and client secret.
+2. Variable Definitions:
+
+  - Defines various variables used throughout the configuration, such as resource group name, app service location, SQL host, and more.
+  - Sensitive variables like azure_client_secret and administratorLoginPassword are marked as sensitive to ensure they are handled securely.
+3. Resource Definitions:
+
+- Resource Group: Creates an Azure resource group.
+- Service Plan: Defines an Azure service plan for hosting web applications.
+- Application Insights: Sets up Azure Application Insights for monitoring.
+- Storage Account and Containers: Creates a storage account and containers for storing backups and other data.
+- Linux Web App: Configures a Linux web app with various settings, including backups and app settings.
+- Web App Slot: Defines a production slot for the web app.
+- MySQL Flexible Server: Sets up a MySQL flexible server with configurations.
+- MySQL Databases: Creates MySQL databases for production and UAT environments.
+4. Data Sources:
+
+- Retrieves a SAS token for the storage account to enable secure access.
+5. Dependencies:
+
+- Ensures resources are created in the correct order by specifying dependencies.
+
 ## Terraform Configuration
 The Terraform configuration files are located in the terraform directory. The main configuration file is main.tf, and variables are defined in variables.tf. Outputs are defined in outputs.tf, and the backend configuration is in backend.tf.
 
