@@ -1,0 +1,5 @@
+# .gitignore file
+.gitignore:
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.*
