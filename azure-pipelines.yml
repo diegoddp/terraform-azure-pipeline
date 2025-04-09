@@ -1,0 +1,85 @@
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+- group: 'Environment Variables'
+
+
+stages:
+- stage: Build
+  displayName: 'Copy Terraform'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Job'
+    steps:
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(build.artifactstagingdirectory)/template-artifact'
+      inputs:
+        Contents: '**/*.tf'
+        TargetFolder: '$(build.artifactstagingdirectory)/template-artifact'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: drop'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+
+- stage: Install
+  displayName: 'Install Template'
+  dependsOn: Build
+  jobs:
+  - job: InstallJob
+    displayName: 'Install Job'
+    steps:
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: 'latest'
+        displayName: 'Install Terraform latest'
+
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download Artifact'
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'drop'
+        downloadPath: '$(Pipeline.Workspace)'
+
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        commandOptions: '-upgrade -var="ResourceGroupName=$(ResourceGroupName)"  -var="AppServiceLocationName=$(AppServiceLocationName)" -var="sqlhost=$(sqlhost)" -var="administratorLogin=$(administratorLogin)" -var="administratorLoginPassword=$(administratorLoginPassword)" -var="appinsightsname=$(appinsightsname)" -var="appservice_name=$(appservice_name)" -var="serviceplanname=$(serviceplanname)" -var="tagenv=$(tagenv)" -var="skuname=$(skuname)" -var="slots_prd_name=$(slots_prd_name)" -var="databases_mysql_name_prd=$(databases_mysql_name_prd)" -var="databases_mysql_name_uat=$(databases_mysql_name_uat)" -var="storageacc=$(storageacc)" -var="container_prd=$(container_prd)" -var="container_uat=$(container_uat)"'
+        backendServiceArm: $(azureSubsc)
+        backendAzureRmResourceGroupName: 'template-grp'
+        backendAzureRmStorageAccountName: 'webopsterraformsandbox'
+        backendAzureRmContainerName: 'template-terraform'
+        backendAzureRmKey: 'terraform.tfstate'
+
+
+    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+      displayName: 'Terraform : plan'
+      inputs:
+        command: plan
+        commandOptions: '-input=false -var="ResourceGroupName=$(ResourceGroupName)"  -var="AppServiceLocationName=$(AppServiceLocationName)" -var="sqlhost=$(sqlhost)" -var="administratorLogin=$(administratorLogin)" -var="administratorLoginPassword=$(administratorLoginPassword)" -var="appinsightsname=$(appinsightsname)" -var="appservice_name=$(appservice_name)" -var="serviceplanname=$(serviceplanname)" -var="tagenv=$(tagenv)" -var="skuname=$(skuname)" -var="slots_prd_name=$(slots_prd_name)" -var="databases_mysql_name_prd=$(databases_mysql_name_prd)" -var="databases_mysql_name_uat=$(databases_mysql_name_uat)" -var="storageacc=$(storageacc)" -var="container_prd=$(container_prd)" -var="container_uat=$(container_uat)"'
+        environmentServiceNameAzureRM: $(azureSubsc)
+        backendAzureRmUseEnvironmentVariablesForAuthentication: false
+        backendAzureRmUseEntraIdForAuthentication: false
+        backendServiceArm: $(azureSubsc)
+        backendAzureRmResourceGroupName: 'template-grp'
+        backendAzureRmStorageAccountName: webopsterraformsandbox
+        backendAzureRmContainerName: 'template-terraform'
+        backendAzureRmKey: terraform.tfstate
+
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        commandOptions: '-var="ResourceGroupName=$(ResourceGroupName)"  -var="AppServiceLocationName=$(AppServiceLocationName)" -var="sqlhost=$(sqlhost)" -var="administratorLogin=$(administratorLogin)" -var="administratorLoginPassword=$(administratorLoginPassword)" -var="appinsightsname=$(appinsightsname)" -var="appservice_name=$(appservice_name)" -var="serviceplanname=$(serviceplanname)" -var="tagenv=$(tagenv)" -var="skuname=$(skuname)" -var="slots_prd_name=$(slots_prd_name)" -var="databases_mysql_name_prd=$(databases_mysql_name_prd)" -var="databases_mysql_name_uat=$(databases_mysql_name_uat)" -var="storageacc=$(storageacc)" -var="container_prd=$(container_prd)" -var="container_uat=$(container_uat)"'
+        environmentServiceNameAzureRM: $(azureSubsc)
