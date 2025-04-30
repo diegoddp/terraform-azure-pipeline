@@ -58,7 +58,7 @@ stages:
         commandOptions: '-upgrade -var="ResourceGroupName=$(ResourceGroupName)"  -var="AppServiceLocationName=$(AppServiceLocationName)" -var="sqlhost=$(sqlhost)" -var="administratorLogin=$(administratorLogin)" -var="administratorLoginPassword=$(administratorLoginPassword)" -var="appinsightsname=$(appinsightsname)" -var="appservice_name=$(appservice_name)" -var="serviceplanname=$(serviceplanname)" -var="tagenv=$(tagenv)" -var="skuname=$(skuname)" -var="slots_prd_name=$(slots_prd_name)" -var="databases_mysql_name_prd=$(databases_mysql_name_prd)" -var="databases_mysql_name_uat=$(databases_mysql_name_uat)" -var="storageacc=$(storageacc)" -var="container_prd=$(container_prd)" -var="container_uat=$(container_uat)"'
         backendServiceArm: $(azureSubsc)
         backendAzureRmResourceGroupName: 'template-grp'
-        backendAzureRmStorageAccountName: 'webopsterraformsandbox'
+        backendAzureRmStorageAccountName: 'sandboxstorageacc'
         backendAzureRmContainerName: 'template-terraform'
         backendAzureRmKey: 'terraform.tfstate'
 
@@ -73,7 +73,7 @@ stages:
         backendAzureRmUseEntraIdForAuthentication: false
         backendServiceArm: $(azureSubsc)
         backendAzureRmResourceGroupName: 'template-grp'
-        backendAzureRmStorageAccountName: webopsterraformsandbox
+        backendAzureRmStorageAccountName: sandboxstorageacc
         backendAzureRmContainerName: 'template-terraform'
         backendAzureRmKey: terraform.tfstate
 
